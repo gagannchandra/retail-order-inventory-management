@@ -1,0 +1,1304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RetailIMS — Order & Inventory Management</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    :root {
+      --bg:        #0c0e14;
+      --surface:   #13161f;
+      --surface2:  #1a1d28;
+      --border:    #252838;
+      --accent:    #4f7cff;
+      --accent2:   #a855f7;
+      --green:     #22c55e;
+      --yellow:    #f59e0b;
+      --red:       #ef4444;
+      --text:      #e2e5f0;
+      --muted:     #6b7280;
+      --font-head: 'Syne', sans-serif;
+      --font-body: 'DM Sans', sans-serif;
+      --font-mono: 'DM Mono', monospace;
+      --radius:    12px;
+      --radius-sm: 8px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: 14px;
+      min-height: 100vh;
+      display: flex;
+      overflow: hidden;
+    }
+
+    /* ─── Sidebar ────────────────────────────────── */
+    .sidebar {
+      width: 240px;
+      min-width: 240px;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      padding: 24px 0;
+      height: 100vh;
+      overflow-y: auto;
+    }
+
+    .logo {
+      padding: 0 20px 28px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 12px;
+    }
+
+    .logo-icon {
+      width: 36px; height: 36px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+    }
+
+    .logo h1 {
+      font-family: var(--font-head);
+      font-size: 17px;
+      font-weight: 800;
+      background: linear-gradient(135deg, #fff 40%, var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.3px;
+    }
+
+    .nav-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 14px 20px 6px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 20px;
+      cursor: pointer;
+      border-radius: 0;
+      color: var(--muted);
+      transition: all 0.15s;
+      font-size: 13.5px;
+      font-weight: 400;
+      position: relative;
+      text-decoration: none;
+      margin: 1px 10px;
+      border-radius: 8px;
+    }
+
+    .nav-item:hover { background: var(--surface2); color: var(--text); }
+
+    .nav-item.active {
+      background: rgba(79,124,255,0.12);
+      color: #fff;
+      font-weight: 500;
+    }
+    .nav-item.active::before {
+      content:'';
+      position:absolute; left:0; top:20%; bottom:20%;
+      width:3px; background:var(--accent);
+      border-radius:0 2px 2px 0;
+      margin-left: -10px;
+    }
+    .nav-item i { width: 18px; text-align: center; font-size: 13px; }
+
+    .badge {
+      margin-left: auto;
+      background: var(--red);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 100px;
+      font-family: var(--font-mono);
+    }
+
+    .sidebar-footer {
+      margin-top: auto;
+      padding: 16px 20px;
+      border-top: 1px solid var(--border);
+    }
+
+    .user-pill {
+      display: flex; align-items: center; gap: 10px;
+      padding: 8px 10px;
+      background: var(--surface2);
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    .avatar {
+      width: 30px; height: 30px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 700; color: #fff;
+    }
+
+    .user-info { flex: 1; }
+    .user-name { font-size: 12.5px; font-weight: 600; }
+    .user-role { font-size: 11px; color: var(--muted); }
+
+    /* ─── Main Content ───────────────────────────── */
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .topbar {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 28px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-shrink: 0;
+    }
+
+    .page-title {
+      font-family: var(--font-head);
+      font-size: 18px;
+      font-weight: 700;
+      flex: 1;
+    }
+
+    .search-bar {
+      display: flex; align-items: center; gap: 8px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 7px 12px;
+      width: 240px;
+    }
+
+    .search-bar input {
+      background: none;
+      border: none;
+      outline: none;
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: 13px;
+      width: 100%;
+    }
+
+    .search-bar i { color: var(--muted); font-size: 12px; }
+
+    .btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 16px;
+      border-radius: var(--radius-sm);
+      font-family: var(--font-body);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      transition: all 0.15s;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+    }
+    .btn-primary:hover { background: #3d6aed; }
+
+    .btn-ghost {
+      background: var(--surface2);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-ghost:hover { background: var(--border); }
+
+    /* ─── Content Area ───────────────────────────── */
+    .content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 28px;
+    }
+
+    /* ─── Stat Cards ─────────────────────────────── */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-card::before {
+      content:'';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: var(--card-accent, var(--accent));
+    }
+
+    .stat-icon {
+      width: 38px; height: 38px;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 15px;
+      margin-bottom: 14px;
+      background: var(--icon-bg, rgba(79,124,255,0.1));
+      color: var(--card-accent, var(--accent));
+    }
+
+    .stat-value {
+      font-family: var(--font-head);
+      font-size: 26px;
+      font-weight: 700;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .stat-label { font-size: 12px; color: var(--muted); }
+
+    .stat-delta {
+      font-size: 11px;
+      font-family: var(--font-mono);
+      margin-top: 8px;
+      display: flex; align-items: center; gap: 4px;
+    }
+
+    .delta-up   { color: var(--green); }
+    .delta-down { color: var(--red); }
+
+    /* ─── Panels ─────────────────────────────────── */
+    .panels {
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 16px;
+    }
+
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .panel-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .panel-title {
+      font-family: var(--font-head);
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .panel-body { padding: 0; }
+
+    /* ─── Table ──────────────────────────────────── */
+    .table-wrap { overflow-x: auto; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    thead th {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 12px 20px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+
+    tbody tr {
+      border-bottom: 1px solid rgba(37,40,56,0.6);
+      transition: background 0.1s;
+    }
+
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: var(--surface2); }
+
+    tbody td {
+      padding: 13px 20px;
+      font-size: 13px;
+      vertical-align: middle;
+    }
+
+    .mono { font-family: var(--font-mono); font-size: 12px; }
+
+    /* ─── Status Badges ──────────────────────────── */
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 9px;
+      border-radius: 100px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+    }
+
+    .status::before {
+      content: '';
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    .status-pending    { background: rgba(245,158,11,0.12);  color: #f59e0b; }
+    .status-confirmed  { background: rgba(79,124,255,0.12);  color: #4f7cff; }
+    .status-processing { background: rgba(168,85,247,0.12);  color: #a855f7; }
+    .status-shipped    { background: rgba(6,182,212,0.12);   color: #06b6d4; }
+    .status-delivered  { background: rgba(34,197,94,0.12);   color: #22c55e; }
+    .status-cancelled  { background: rgba(239,68,68,0.12);   color: #ef4444; }
+    .status-low        { background: rgba(245,158,11,0.12);  color: #f59e0b; }
+    .status-out        { background: rgba(239,68,68,0.12);   color: #ef4444; }
+    .status-in         { background: rgba(34,197,94,0.12);   color: #22c55e; }
+
+    /* ─── Chart Area ─────────────────────────────── */
+    .chart-container {
+      padding: 20px;
+      height: 220px;
+      display: flex;
+      align-items: flex-end;
+      gap: 8px;
+    }
+
+    .bar-group {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      height: 100%;
+      justify-content: flex-end;
+    }
+
+    .bar {
+      width: 100%;
+      border-radius: 4px 4px 0 0;
+      background: linear-gradient(to top, var(--accent), rgba(79,124,255,0.4));
+      min-height: 4px;
+      transition: all 0.3s;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .bar:hover { filter: brightness(1.2); }
+
+    .bar-label { font-size: 10px; color: var(--muted); font-family: var(--font-mono); }
+
+    /* ─── Alert Items ────────────────────────────── */
+    .alert-item {
+      padding: 12px 20px;
+      border-bottom: 1px solid rgba(37,40,56,0.6);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .alert-item:last-child { border-bottom: none; }
+
+    .alert-icon {
+      width: 32px; height: 32px;
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px;
+      flex-shrink: 0;
+    }
+
+    .alert-icon.low  { background: rgba(245,158,11,0.12); color: #f59e0b; }
+    .alert-icon.out  { background: rgba(239,68,68,0.12);  color: #ef4444; }
+
+    .alert-name  { font-size: 13px; font-weight: 500; }
+    .alert-stock { font-size: 11px; color: var(--muted); font-family: var(--font-mono); margin-top: 2px; }
+    .alert-meta  { margin-left: auto; text-align: right; }
+    .alert-sku   { font-family: var(--font-mono); font-size: 11px; color: var(--muted); }
+
+    /* ─── Scrollbar ──────────────────────────────── */
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+    /* ─── Login Screen ───────────────────────────── */
+    .login-overlay {
+      position: fixed; inset: 0;
+      background: var(--bg);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .login-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 44px;
+      width: 380px;
+    }
+
+    .login-logo {
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 32px;
+    }
+
+    .login-logo .logo-icon { width: 44px; height: 44px; border-radius: 12px; font-size: 20px; }
+
+    .login-logo h2 {
+      font-family: var(--font-head);
+      font-size: 22px;
+      font-weight: 800;
+      background: linear-gradient(135deg, #fff 40%, var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .form-group { margin-bottom: 18px; }
+    .form-label { font-size: 12px; font-weight: 600; color: var(--muted); display: block; margin-bottom: 7px; letter-spacing: 0.5px; }
+
+    .form-input {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 11px 14px;
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    .form-input:focus { border-color: var(--accent); }
+
+    .login-btn {
+      width: 100%;
+      padding: 12px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-family: var(--font-head);
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 8px;
+      transition: background 0.15s;
+    }
+
+    .login-btn:hover { background: #3d6aed; }
+
+    .login-hint {
+      text-align: center;
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 20px;
+      padding: 12px;
+      background: var(--surface2);
+      border-radius: 8px;
+      border: 1px dashed var(--border);
+    }
+
+    .login-hint code {
+      font-family: var(--font-mono);
+      color: var(--accent);
+    }
+
+    /* ─── Page Sections (hidden/shown) ──────────── */
+    .page { display: none; }
+    .page.active { display: block; }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .section-title {
+      font-family: var(--font-head);
+      font-size: 22px;
+      font-weight: 700;
+    }
+
+    /* ─── Pill Tabs ───────────────────────────────── */
+    .tabs {
+      display: flex; gap: 4px;
+      background: var(--surface2);
+      padding: 4px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+    }
+
+    .tab {
+      padding: 6px 14px;
+      border-radius: 7px;
+      font-size: 12.5px;
+      font-weight: 500;
+      cursor: pointer;
+      color: var(--muted);
+      transition: all 0.15s;
+    }
+
+    .tab.active {
+      background: var(--surface);
+      color: var(--text);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+    }
+
+    /* ─── Empty state ────────────────────────────── */
+    .empty {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--muted);
+    }
+
+    .empty i { font-size: 36px; margin-bottom: 12px; opacity: 0.3; display: block; }
+
+    /* ─── Loader ─────────────────────────────────── */
+    .loader {
+      display: flex; align-items: center; justify-content: center;
+      padding: 40px;
+      color: var(--muted);
+      gap: 10px;
+    }
+
+    .spinner {
+      width: 18px; height: 18px;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .notification {
+      position: fixed; bottom: 24px; right: 24px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--green);
+      border-radius: var(--radius-sm);
+      padding: 12px 16px;
+      font-size: 13px;
+      z-index: 200;
+      display: none;
+      animation: slideIn 0.2s ease;
+    }
+
+    @keyframes slideIn { from { transform: translateX(20px); opacity: 0; } }
+  </style>
+</head>
+<body>
+
+<!-- ─── Login ─────────────────────────────────────────────── -->
+<div class="login-overlay" id="loginOverlay">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="logo-icon">🏪</div>
+      <h2>RetailIMS</h2>
+    </div>
+    <div class="form-group">
+      <label class="form-label">EMAIL ADDRESS</label>
+      <input class="form-input" type="email" id="loginEmail" placeholder="admin@retailims.com" value="admin@retailims.com">
+    </div>
+    <div class="form-group">
+      <label class="form-label">PASSWORD</label>
+      <input class="form-input" type="password" id="loginPassword" placeholder="••••••••" value="Admin@1234">
+    </div>
+    <button class="login-btn" onclick="handleLogin()">Sign In →</button>
+    <div class="login-hint">
+      Demo: <code>admin@retailims.com</code> / <code>Admin@1234</code><br>
+      <small style="color:var(--muted);font-size:11px;margin-top:4px;display:block">Connect to your MySQL DB via .env to enable live API calls</small>
+    </div>
+  </div>
+</div>
+
+<!-- ─── Sidebar ───────────────────────────────────────────── -->
+<nav class="sidebar">
+  <div class="logo">
+    <div class="logo-icon">🏪</div>
+    <h1>RetailIMS</h1>
+  </div>
+
+  <div class="nav-label">Overview</div>
+  <a class="nav-item active" onclick="showPage('dashboard', this)">
+    <i class="fa-solid fa-chart-pie"></i> Dashboard
+  </a>
+
+  <div class="nav-label">Operations</div>
+  <a class="nav-item" onclick="showPage('orders', this)">
+    <i class="fa-solid fa-receipt"></i> Orders
+    <span class="badge" id="pendingBadge">3</span>
+  </a>
+  <a class="nav-item" onclick="showPage('products', this)">
+    <i class="fa-solid fa-box"></i> Products
+  </a>
+  <a class="nav-item" onclick="showPage('inventory', this)">
+    <i class="fa-solid fa-warehouse"></i> Inventory
+    <span class="badge" id="lowStockBadge">2</span>
+  </a>
+  <a class="nav-item" onclick="showPage('customers', this)">
+    <i class="fa-solid fa-users"></i> Customers
+  </a>
+
+  <div class="nav-label">System</div>
+  <a class="nav-item" onclick="showPage('api', this)">
+    <i class="fa-solid fa-code"></i> API Explorer
+  </a>
+
+  <div class="sidebar-footer">
+    <div class="user-pill">
+      <div class="avatar">AD</div>
+      <div class="user-info">
+        <div class="user-name">Admin User</div>
+        <div class="user-role">Administrator</div>
+      </div>
+      <i class="fa-solid fa-chevron-up" style="color:var(--muted);font-size:10px"></i>
+    </div>
+  </div>
+</nav>
+
+<!-- ─── Main ──────────────────────────────────────────────── -->
+<div class="main">
+  <div class="topbar">
+    <div class="page-title" id="pageTitle">Dashboard</div>
+    <div class="search-bar">
+      <i class="fa-solid fa-magnifying-glass"></i>
+      <input type="text" placeholder="Search orders, products…" id="searchInput">
+    </div>
+    <button class="btn btn-primary" onclick="handlePrimaryAction()">
+      <i class="fa-solid fa-plus"></i> <span id="primaryActionLabel">New Order</span>
+    </button>
+  </div>
+
+  <div class="content">
+    <!-- ── Dashboard Page ── -->
+    <div class="page active" id="page-dashboard">
+      <div class="stats-grid">
+        <div class="stat-card" style="--card-accent:#4f7cff;--icon-bg:rgba(79,124,255,0.1)">
+          <div class="stat-icon"><i class="fa-solid fa-indian-rupee-sign"></i></div>
+          <div class="stat-value" id="stat-revenue">₹0</div>
+          <div class="stat-label">Monthly Revenue</div>
+          <div class="stat-delta delta-up"><i class="fa-solid fa-arrow-up"></i> +12.4% vs last month</div>
+        </div>
+        <div class="stat-card" style="--card-accent:#22c55e;--icon-bg:rgba(34,197,94,0.1)">
+          <div class="stat-icon"><i class="fa-solid fa-receipt"></i></div>
+          <div class="stat-value" id="stat-orders">0</div>
+          <div class="stat-label">Total Orders (Month)</div>
+          <div class="stat-delta delta-up"><i class="fa-solid fa-arrow-up"></i> +8 today</div>
+        </div>
+        <div class="stat-card" style="--card-accent:#a855f7;--icon-bg:rgba(168,85,247,0.1)">
+          <div class="stat-icon"><i class="fa-solid fa-box"></i></div>
+          <div class="stat-value" id="stat-products">0</div>
+          <div class="stat-label">Active Products</div>
+          <div class="stat-delta delta-down"><i class="fa-solid fa-triangle-exclamation"></i> <span id="stat-lowstock">0</span> low stock</div>
+        </div>
+        <div class="stat-card" style="--card-accent:#f59e0b;--icon-bg:rgba(245,158,11,0.1)">
+          <div class="stat-icon"><i class="fa-solid fa-clock"></i></div>
+          <div class="stat-value" id="stat-pending">0</div>
+          <div class="stat-label">Pending Orders</div>
+          <div class="stat-delta" style="color:var(--muted)">Requires attention</div>
+        </div>
+      </div>
+
+      <div class="panels">
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">Sales — Last 7 Days</div>
+            <span style="font-size:11px;color:var(--muted);font-family:var(--font-mono)" id="chartTotal"></span>
+          </div>
+          <div class="chart-container" id="salesChart">
+            <div class="loader"><div class="spinner"></div> Loading chart…</div>
+          </div>
+          <div class="panel-header" style="border-top:1px solid var(--border);border-bottom:none;margin-top:0">
+            <div class="panel-title">Recent Orders</div>
+            <button class="btn btn-ghost" style="font-size:11px;padding:5px 10px" onclick="showPage('orders', document.querySelector('.nav-item:nth-child(4))'))">View all →</button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Order #</th>
+                  <th>Customer</th>
+                  <th>Amount</th>
+                  <th>Status</th>
+                  <th>Date</th>
+                </tr>
+              </thead>
+              <tbody id="recentOrdersTable">
+                <tr><td colspan="5"><div class="loader"><div class="spinner"></div></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">⚠️ Stock Alerts</div>
+            <span class="status status-low" id="alertCount">Loading…</span>
+          </div>
+          <div class="panel-body" id="alertsPanel">
+            <div class="loader"><div class="spinner"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Orders Page ── -->
+    <div class="page" id="page-orders">
+      <div class="section-header">
+        <div class="section-title">Orders</div>
+        <div class="tabs">
+          <div class="tab active" onclick="filterOrders('', this)">All</div>
+          <div class="tab" onclick="filterOrders('PENDING', this)">Pending</div>
+          <div class="tab" onclick="filterOrders('PROCESSING', this)">Processing</div>
+          <div class="tab" onclick="filterOrders('DELIVERED', this)">Delivered</div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Order #</th><th>Customer</th><th>Items</th>
+                <th>Total</th><th>Payment</th><th>Status</th><th>Date</th><th></th>
+              </tr>
+            </thead>
+            <tbody id="ordersTable">
+              <tr><td colspan="8"><div class="loader"><div class="spinner"></div></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Products Page ── -->
+    <div class="page" id="page-products">
+      <div class="section-header">
+        <div class="section-title">Products</div>
+      </div>
+      <div class="panel">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>SKU</th><th>Name</th><th>Category</th>
+                <th>Price</th><th>Stock</th><th>Status</th><th></th>
+              </tr>
+            </thead>
+            <tbody id="productsTable">
+              <tr><td colspan="7"><div class="loader"><div class="spinner"></div></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Inventory Page ── -->
+    <div class="page" id="page-inventory">
+      <div class="section-header">
+        <div class="section-title">Inventory</div>
+        <div class="tabs">
+          <div class="tab active" onclick="filterInventory('', this)">All</div>
+          <div class="tab" onclick="filterInventory('low', this)">Low Stock</div>
+          <div class="tab" onclick="filterInventory('out', this)">Out of Stock</div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Product</th><th>SKU</th><th>Category</th>
+                <th>On Hand</th><th>Reserved</th><th>Available</th>
+                <th>Reorder Pt</th><th>Location</th><th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="inventoryTable">
+              <tr><td colspan="9"><div class="loader"><div class="spinner"></div></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Customers Page ── -->
+    <div class="page" id="page-customers">
+      <div class="section-header">
+        <div class="section-title">Customers</div>
+      </div>
+      <div class="panel">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th><th>Email</th><th>Phone</th>
+                <th>Tier</th><th>Orders</th><th>Spent</th><th>City</th>
+              </tr>
+            </thead>
+            <tbody id="customersTable">
+              <tr><td colspan="7"><div class="loader"><div class="spinner"></div></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── API Explorer Page ── -->
+    <div class="page" id="page-api">
+      <div class="section-header">
+        <div class="section-title">API Explorer</div>
+        <span style="font-size:12px;color:var(--muted);font-family:var(--font-mono)">Base: /api/v1</span>
+      </div>
+      <div id="apiEndpoints"></div>
+    </div>
+  </div>
+</div>
+
+<div class="notification" id="notification"></div>
+
+<script>
+  // ─── Mock Data (used when API is unavailable) ──────────────
+  const API_BASE = '/api/v1';
+  let authToken  = null;
+  let mockMode   = true; // Switch to false when MySQL is running
+
+  const MOCK = {
+    stats: {
+      revenue: { month_revenue: 284750, pending_orders: 3, today_orders: 8 },
+      inventory: { total_products: 126, low_stock_count: 5 },
+      dailySales: [
+        { date:'Feb 27', orders:12, revenue:38200 },
+        { date:'Feb 28', orders:9,  revenue:29100 },
+        { date:'Mar 01', orders:15, revenue:51400 },
+        { date:'Mar 02', orders:11, revenue:36800 },
+        { date:'Mar 03', orders:18, revenue:64700 },
+        { date:'Mar 04', orders:7,  revenue:22300 },
+        { date:'Mar 05', orders:14, revenue:42250 },
+      ],
+    },
+    orders: [
+      { order_number:'ORD-2026-00048', customer_name:'Priya Sharma',    item_count:3, total_amount:12450, payment_status:'PAID',   status:'DELIVERED',  created_at:'2026-03-05T10:20:00Z' },
+      { order_number:'ORD-2026-00047', customer_name:'Rahul Verma',     item_count:1, total_amount:3200,  payment_status:'UNPAID', status:'PENDING',    created_at:'2026-03-05T09:15:00Z' },
+      { order_number:'ORD-2026-00046', customer_name:'Anjali Singh',    item_count:5, total_amount:28900, payment_status:'PAID',   status:'PROCESSING', created_at:'2026-03-04T16:30:00Z' },
+      { order_number:'ORD-2026-00045', customer_name:'Mohammed Khan',   item_count:2, total_amount:6750,  payment_status:'PAID',   status:'SHIPPED',    created_at:'2026-03-04T11:00:00Z' },
+      { order_number:'ORD-2026-00044', customer_name:'Deepika Nair',    item_count:4, total_amount:19200, payment_status:'PARTIAL',status:'CONFIRMED',  created_at:'2026-03-03T14:45:00Z' },
+      { order_number:'ORD-2026-00043', customer_name:'Arjun Patel',     item_count:1, total_amount:2150,  payment_status:'PAID',   status:'DELIVERED',  created_at:'2026-03-03T09:10:00Z' },
+    ],
+    products: [
+      { sku:'ELEC-001', name:'Samsung Galaxy S24',   category:'Electronics', unit_price:74999, quantity_available:42, is_active:1 },
+      { sku:'ELEC-002', name:'Apple AirPods Pro 2',  category:'Electronics', unit_price:24900, quantity_available:8,  is_active:1 },
+      { sku:'CLTH-001', name:'Nike Dri-FIT T-Shirt', category:'Clothing',    unit_price:2499,  quantity_available:120,is_active:1 },
+      { sku:'ELEC-003', name:'Sony WH-1000XM5',      category:'Electronics', unit_price:29990, quantity_available:0,  is_active:1 },
+      { sku:'HOME-001', name:'Prestige Induction',   category:'Home & Kitchen',unit_price:3799, quantity_available:35,is_active:1 },
+      { sku:'SPRT-001', name:'Adidas Running Shoes', category:'Sports',      unit_price:7999,  quantity_available:5,  is_active:1 },
+    ],
+    inventory: [
+      { name:'Samsung Galaxy S24',   sku:'ELEC-001', category:'Electronics', quantity_on_hand:45, quantity_reserved:3,  quantity_available:42, reorder_point:10, warehouse_location:'A-01' },
+      { name:'Apple AirPods Pro 2',  sku:'ELEC-002', category:'Electronics', quantity_on_hand:10, quantity_reserved:2,  quantity_available:8,  reorder_point:10, warehouse_location:'A-02' },
+      { name:'Sony WH-1000XM5',      sku:'ELEC-003', category:'Electronics', quantity_on_hand:0,  quantity_reserved:0,  quantity_available:0,  reorder_point:5,  warehouse_location:'A-03' },
+      { name:'Nike Dri-FIT T-Shirt', sku:'CLTH-001', category:'Clothing',    quantity_on_hand:130,quantity_reserved:10, quantity_available:120,reorder_point:20, warehouse_location:'B-01' },
+      { name:'Adidas Running Shoes', sku:'SPRT-001', category:'Sports',      quantity_on_hand:7,  quantity_reserved:2,  quantity_available:5,  reorder_point:10, warehouse_location:'C-02' },
+    ],
+    customers: [
+      { first_name:'Priya',    last_name:'Sharma',  email:'priya@example.com',  phone:'9876543210', tier:'GOLD',     total_orders:18, total_spent:142300, city:'Mumbai' },
+      { first_name:'Rahul',    last_name:'Verma',   email:'rahul@example.com',  phone:'9876543211', tier:'SILVER',   total_orders:7,  total_spent:38400,  city:'Delhi' },
+      { first_name:'Anjali',   last_name:'Singh',   email:'anjali@example.com', phone:'9876543212', tier:'PLATINUM', total_orders:34, total_spent:312700, city:'Bengaluru' },
+      { first_name:'Mohammed', last_name:'Khan',    email:'mk@example.com',     phone:'9876543213', tier:'GOLD',     total_orders:12, total_spent:89500,  city:'Hyderabad' },
+      { first_name:'Deepika',  last_name:'Nair',    email:'dn@example.com',     phone:'9876543214', tier:'STANDARD', total_orders:3,  total_spent:12900,  city:'Chennai' },
+    ],
+    alerts: [
+      { name:'Apple AirPods Pro 2', sku:'ELEC-002', quantity_available:8,  reorder_point:10, reorder_quantity:30 },
+      { name:'Sony WH-1000XM5',     sku:'ELEC-003', quantity_available:0,  reorder_point:5,  reorder_quantity:20 },
+      { name:'Adidas Running Shoes',sku:'SPRT-001', quantity_available:5,  reorder_point:10, reorder_quantity:25 },
+    ],
+  };
+
+  // ─── API Helper ────────────────────────────────────────────
+  async function api(method, path, body) {
+    if (mockMode) return null;
+    try {
+      const res = await fetch(`${API_BASE}${path}`, {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+          ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
+        },
+        body: body ? JSON.stringify(body) : undefined,
+      });
+      return res.ok ? await res.json() : null;
+    } catch { return null; }
+  }
+
+  // ─── Auth ──────────────────────────────────────────────────
+  function handleLogin() {
+    const email = document.getElementById('loginEmail').value;
+    const pass  = document.getElementById('loginPassword').value;
+    if (!email || !pass) return;
+
+    if (!mockMode) {
+      api('POST', '/auth/login', { email, password: pass }).then(data => {
+        if (data?.success) {
+          authToken = data.data.token;
+          document.getElementById('loginOverlay').style.display = 'none';
+          loadDashboard();
+        }
+      });
+    } else {
+      // Demo mode — bypass auth
+      document.getElementById('loginOverlay').style.display = 'none';
+      loadDashboard();
+    }
+  }
+
+  // ─── Page Navigation ───────────────────────────────────────
+  const pageTitles = {
+    dashboard: 'Dashboard',
+    orders   : 'Orders',
+    products : 'Products',
+    inventory: 'Inventory',
+    customers: 'Customers',
+    api      : 'API Explorer',
+  };
+
+  const primaryLabels = {
+    dashboard: 'New Order',
+    orders   : 'New Order',
+    products : 'Add Product',
+    inventory: 'Adjust Stock',
+    customers: 'Add Customer',
+    api      : 'Docs ↗',
+  };
+
+  function showPage(name, el) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById(`page-${name}`).classList.add('active');
+    if (el) el.classList.add('active');
+    document.getElementById('pageTitle').textContent       = pageTitles[name];
+    document.getElementById('primaryActionLabel').textContent = primaryLabels[name];
+
+    if (name === 'orders')    loadOrders();
+    if (name === 'products')  loadProducts();
+    if (name === 'inventory') loadInventory();
+    if (name === 'customers') loadCustomers();
+    if (name === 'api')       renderApiExplorer();
+  }
+
+  function handlePrimaryAction() {
+    notify('Feature available via REST API — see API Explorer', 'info');
+  }
+
+  // ─── Format Helpers ────────────────────────────────────────
+  const fmt   = n  => '₹' + Number(n).toLocaleString('en-IN');
+  const fdate = d  => new Date(d).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'2-digit' });
+
+  function statusBadge(s) {
+    const map = {
+      PENDING:'pending', CONFIRMED:'confirmed', PROCESSING:'processing',
+      SHIPPED:'shipped', DELIVERED:'delivered', CANCELLED:'cancelled',
+      REFUNDED:'cancelled', LOW_STOCK:'low', OUT_OF_STOCK:'out', IN_STOCK:'in',
+    };
+    return `<span class="status status-${map[s]||'confirmed'}">${s.replace('_',' ')}</span>`;
+  }
+
+  function tierBadge(t) {
+    const colors = { STANDARD:'var(--muted)', SILVER:'#94a3b8', GOLD:'#f59e0b', PLATINUM:'#a855f7' };
+    return `<span style="font-size:11px;font-weight:700;color:${colors[t]||'var(--muted)'}">${t}</span>`;
+  }
+
+  // ─── Dashboard ─────────────────────────────────────────────
+  async function loadDashboard() {
+    const data = mockMode ? MOCK.stats : (await api('GET', '/orders/stats'))?.data || MOCK.stats;
+    const r    = data.revenue   || MOCK.stats.revenue;
+    const inv  = data.inventory || MOCK.stats.inventory;
+    const sales= data.dailySales|| MOCK.stats.dailySales;
+
+    document.getElementById('stat-revenue').textContent  = fmt(r.month_revenue || 0);
+    document.getElementById('stat-orders').textContent   = r.today_orders || 0;
+    document.getElementById('stat-products').textContent = inv.total_products || 0;
+    document.getElementById('stat-lowstock').textContent = inv.low_stock_count || 0;
+    document.getElementById('stat-pending').textContent  = r.pending_orders || 0;
+    document.getElementById('pendingBadge').textContent  = r.pending_orders || 0;
+    document.getElementById('lowStockBadge').textContent = inv.low_stock_count || 0;
+
+    renderSalesChart(sales);
+    renderRecentOrders();
+    renderAlerts();
+  }
+
+  function renderSalesChart(data) {
+    const container = document.getElementById('salesChart');
+    const max = Math.max(...data.map(d => d.revenue));
+    let total = data.reduce((a,d) => a + d.revenue, 0);
+    document.getElementById('chartTotal').textContent = fmt(total) + ' total';
+
+    container.innerHTML = data.map(d => `
+      <div class="bar-group">
+        <div class="bar" style="height:${Math.max(8, (d.revenue / max) * 160)}px"
+             title="${d.date}: ${fmt(d.revenue)}"></div>
+        <div class="bar-label">${d.date.split(' ')[1] || d.date}</div>
+      </div>
+    `).join('');
+  }
+
+  function renderRecentOrders() {
+    const orders = mockMode ? MOCK.orders.slice(0, 5) : [];
+    const tbody  = document.getElementById('recentOrdersTable');
+    if (!orders.length) { tbody.innerHTML = '<tr><td colspan="5"><div class="empty"><i class="fa-solid fa-receipt"></i>No orders yet</div></td></tr>'; return; }
+    tbody.innerHTML = orders.map(o => `
+      <tr>
+        <td class="mono">${o.order_number}</td>
+        <td>${o.customer_name}</td>
+        <td>${fmt(o.total_amount)}</td>
+        <td>${statusBadge(o.status)}</td>
+        <td style="color:var(--muted)">${fdate(o.created_at)}</td>
+      </tr>
+    `).join('');
+  }
+
+  function renderAlerts() {
+    const alerts = mockMode ? MOCK.alerts : [];
+    const panel  = document.getElementById('alertsPanel');
+    document.getElementById('alertCount').textContent = `${alerts.length} alerts`;
+
+    if (!alerts.length) {
+      panel.innerHTML = '<div class="empty"><i class="fa-solid fa-check-circle" style="color:var(--green)"></i>All stock levels healthy</div>';
+      return;
+    }
+
+    panel.innerHTML = alerts.map(a => {
+      const isOut = a.quantity_available === 0;
+      return `
+        <div class="alert-item">
+          <div class="alert-icon ${isOut ? 'out' : 'low'}">
+            <i class="fa-solid fa-${isOut ? 'ban' : 'triangle-exclamation'}"></i>
+          </div>
+          <div>
+            <div class="alert-name">${a.name}</div>
+            <div class="alert-stock">${isOut ? 'Out of stock' : `${a.quantity_available} left / reorder at ${a.reorder_point}`}</div>
+          </div>
+          <div class="alert-meta">
+            <div class="alert-sku">${a.sku}</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:2px">Qty: ${a.reorder_quantity}</div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // ─── Orders ────────────────────────────────────────────────
+  async function loadOrders(status = '') {
+    const path   = `/orders?limit=50${status ? `&status=${status}` : ''}`;
+    const result = mockMode ? MOCK.orders : (await api('GET', path))?.data || MOCK.orders;
+    const tbody  = document.getElementById('ordersTable');
+
+    tbody.innerHTML = result.map(o => `
+      <tr>
+        <td class="mono">${o.order_number}</td>
+        <td>${o.customer_name}</td>
+        <td style="text-align:center">${o.item_count}</td>
+        <td>${fmt(o.total_amount)}</td>
+        <td>${statusBadge(o.payment_status)}</td>
+        <td>${statusBadge(o.status)}</td>
+        <td style="color:var(--muted)">${fdate(o.created_at)}</td>
+        <td><button class="btn btn-ghost" style="padding:4px 10px;font-size:11px" onclick="notify('Order detail via GET /api/v1/orders/${o.id||o.order_number}')">View</button></td>
+      </tr>
+    `).join('');
+  }
+
+  function filterOrders(status, el) {
+    document.querySelectorAll('#page-orders .tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    loadOrders(status);
+  }
+
+  // ─── Products ──────────────────────────────────────────────
+  async function loadProducts() {
+    const result = mockMode ? MOCK.products : (await api('GET', '/products?limit=50'))?.data || MOCK.products;
+    const tbody  = document.getElementById('productsTable');
+
+    tbody.innerHTML = result.map(p => {
+      const stockColor = p.quantity_available === 0 ? 'var(--red)' : p.quantity_available < 10 ? 'var(--yellow)' : 'var(--green)';
+      return `
+        <tr>
+          <td class="mono">${p.sku}</td>
+          <td style="font-weight:500">${p.name}</td>
+          <td style="color:var(--muted)">${p.category}</td>
+          <td>${fmt(p.unit_price)}</td>
+          <td style="color:${stockColor};font-family:var(--font-mono);font-weight:600">${p.quantity_available ?? p.quantity_on_hand}</td>
+          <td>${p.is_active ? '<span class="status status-in">Active</span>' : '<span class="status status-out">Inactive</span>'}</td>
+          <td><button class="btn btn-ghost" style="padding:4px 10px;font-size:11px" onclick="notify('Edit via PATCH /api/v1/products/{id}')">Edit</button></td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  // ─── Inventory ─────────────────────────────────────────────
+  async function loadInventory(filter = '') {
+    let data = mockMode ? MOCK.inventory : (await api('GET', `/inventory?limit=50${filter === 'low' ? '&low_stock=1' : filter === 'out' ? '&out_of_stock=1' : ''}`))?.data || MOCK.inventory;
+    if (mockMode && filter === 'low')  data = data.filter(i => i.quantity_available > 0 && i.quantity_available <= i.reorder_point);
+    if (mockMode && filter === 'out')  data = data.filter(i => i.quantity_available === 0);
+    const tbody = document.getElementById('inventoryTable');
+
+    tbody.innerHTML = data.map(i => {
+      const s = i.quantity_available === 0 ? 'OUT_OF_STOCK' : i.quantity_available <= i.reorder_point ? 'LOW_STOCK' : 'IN_STOCK';
+      return `
+        <tr>
+          <td style="font-weight:500">${i.name}</td>
+          <td class="mono">${i.sku}</td>
+          <td style="color:var(--muted)">${i.category}</td>
+          <td class="mono">${i.quantity_on_hand}</td>
+          <td class="mono" style="color:var(--muted)">${i.quantity_reserved}</td>
+          <td class="mono" style="font-weight:600">${i.quantity_available}</td>
+          <td class="mono" style="color:var(--muted)">${i.reorder_point}</td>
+          <td style="color:var(--muted)">${i.warehouse_location || '—'}</td>
+          <td>${statusBadge(s)}</td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  function filterInventory(filter, el) {
+    document.querySelectorAll('#page-inventory .tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    loadInventory(filter);
+  }
+
+  // ─── Customers ─────────────────────────────────────────────
+  async function loadCustomers() {
+    const result = mockMode ? MOCK.customers : (await api('GET', '/customers?limit=50'))?.data || MOCK.customers;
+    const tbody  = document.getElementById('customersTable');
+
+    tbody.innerHTML = result.map(c => `
+      <tr>
+        <td style="font-weight:500">${c.first_name} ${c.last_name}</td>
+        <td style="color:var(--muted)">${c.email || '—'}</td>
+        <td class="mono">${c.phone || '—'}</td>
+        <td>${tierBadge(c.tier)}</td>
+        <td class="mono">${c.total_orders}</td>
+        <td>${fmt(c.total_spent)}</td>
+        <td style="color:var(--muted)">${c.city || '—'}</td>
+      </tr>
+    `).join('');
+  }
+
+  // ─── API Explorer ──────────────────────────────────────────
+  function renderApiExplorer() {
+    const endpoints = [
+      { group:'Auth', color:'#4f7cff', items:[
+        { method:'POST', path:'/auth/register',        desc:'Register a new user account' },
+        { method:'POST', path:'/auth/login',           desc:'Authenticate and receive JWT token' },
+        { method:'GET',  path:'/auth/me',              desc:'Get current authenticated user profile' },
+        { method:'PUT',  path:'/auth/change-password', desc:'Update user password' },
+      ]},
+      { group:'Products', color:'#a855f7', items:[
+        { method:'GET',    path:'/products',             desc:'List products with filtering, search, and pagination' },
+        { method:'GET',    path:'/products/:id',         desc:'Get single product with inventory details' },
+        { method:'POST',   path:'/products',             desc:'Create new product + inventory record (manager+)' },
+        { method:'PATCH',  path:'/products/:id',         desc:'Update product fields (manager+)' },
+        { method:'DELETE', path:'/products/:id',         desc:'Soft-delete product (admin only)' },
+        { method:'POST',   path:'/products/:id/adjust',  desc:'Manual inventory adjustment (manager+)' },
+      ]},
+      { group:'Orders', color:'#22c55e', items:[
+        { method:'GET',   path:'/orders',              desc:'List orders with filters (status, date, customer)' },
+        { method:'GET',   path:'/orders/stats',        desc:'Dashboard stats — revenue, pending, top products' },
+        { method:'GET',   path:'/orders/:id',          desc:'Full order detail with line items' },
+        { method:'POST',  path:'/orders',              desc:'Place order with atomic inventory reservation' },
+        { method:'PATCH', path:'/orders/:id/status',   desc:'Transition order status with validation' },
+      ]},
+      { group:'Inventory', color:'#f59e0b', items:[
+        { method:'GET', path:'/inventory',              desc:'Full inventory list with stock levels' },
+        { method:'GET', path:'/inventory/alerts',       desc:'Products at or below reorder point' },
+        { method:'GET', path:'/inventory/transactions', desc:'Audit trail of all stock movements' },
+      ]},
+      { group:'Customers', color:'#06b6d4', items:[
+        { method:'GET',   path:'/customers',     desc:'List customers with search and tier filter' },
+        { method:'GET',   path:'/customers/:id', desc:'Customer profile with recent orders' },
+        { method:'POST',  path:'/customers',     desc:'Create new customer record' },
+        { method:'PATCH', path:'/customers/:id', desc:'Update customer details and tier (manager+)' },
+      ]},
+    ];
+
+    const methodColor = { GET:'#22c55e', POST:'#4f7cff', PATCH:'#f59e0b', PUT:'#a855f7', DELETE:'#ef4444' };
+
+    document.getElementById('apiEndpoints').innerHTML = endpoints.map(g => `
+      <div class="panel" style="margin-bottom:16px">
+        <div class="panel-header">
+          <div class="panel-title" style="color:${g.color}">${g.group}</div>
+          <span class="mono" style="font-size:11px;color:var(--muted)">${g.items.length} endpoints</span>
+        </div>
+        <table>
+          <thead>
+            <tr><th>Method</th><th>Endpoint</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            ${g.items.map(e => `
+              <tr>
+                <td>
+                  <span style="font-family:var(--font-mono);font-size:11px;font-weight:700;
+                               color:${methodColor[e.method]||'var(--text)'}">
+                    ${e.method}
+                  </span>
+                </td>
+                <td class="mono" style="color:var(--text)">/api/v1${e.path}</td>
+                <td style="color:var(--muted)">${e.desc}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    `).join('');
+  }
+
+  // ─── Notification ──────────────────────────────────────────
+  function notify(msg, type = 'success') {
+    const el = document.getElementById('notification');
+    el.textContent = msg;
+    el.style.borderLeftColor = type === 'success' ? 'var(--green)' : type === 'info' ? 'var(--accent)' : 'var(--red)';
+    el.style.display = 'block';
+    setTimeout(() => { el.style.display = 'none'; }, 3000);
+  }
+
+  // ─── Boot ──────────────────────────────────────────────────
+  document.getElementById('loginPassword').addEventListener('keydown', e => {
+    if (e.key === 'Enter') handleLogin();
+  });
+</script>
+</body>
+</html>
