@@ -5,6 +5,9 @@
 
 ---
 
+## Live Demo  - https://retail-order-inventory-management.onrender.com
+
+
 ## Overview
 
 A scalable backend system for managing products, orders, inventory, and customers in a retail environment. Built with security-first design (JWT + RBAC), normalized relational schemas, and optimized SQL for fast lookups.
